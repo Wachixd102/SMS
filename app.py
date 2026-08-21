@@ -754,6 +754,24 @@ if page == "📈 ประสิทธิภาพโมเดล":
     """, unsafe_allow_html=True)
 
 
+
+import streamlit as st
+
+import streamlit as st
+
+# ==========================================
+# ฟังก์ชันช่วยสำหรับ Preprocessing ข้อความก่อน ทำ Predict
+# ==========================================
+def preprocess_text(text):
+    lemmatizer = WordNetLemmatizer()
+    stop_words = set(stopwords.words('english'))
+    
+    text = text.lower()
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    words = text.split()
+    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
+    return ' '.join(words)
+
 # ==========================================
 # หน้า 6: ผู้พัฒนา (Developer)
 # ==========================================
@@ -817,23 +835,6 @@ if page == "👨‍💻 💻 ผู้พัฒนา":
     </div>
     """, unsafe_allow_html=True)
 
-
-import streamlit as st
-
-import streamlit as st
-
-# ==========================================
-# ฟังก์ชันช่วยสำหรับ Preprocessing ข้อความก่อน ทำ Predict
-# ==========================================
-def preprocess_text(text):
-    lemmatizer = WordNetLemmatizer()
-    stop_words = set(stopwords.words('english'))
-    
-    text = text.lower()
-    text = re.sub(r'[^a-zA-Z\s]', '', text)
-    words = text.split()
-    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
-    return ' '.join(words)
 
 # ==========================================
 # หน้า 5: เช็ค SMS (Predict Page)
