@@ -966,223 +966,102 @@ import streamlit as st
 import streamlit as st
 
 # ==========================================
-# หน้า 5: เช็ค SMS (SMS Checker)
+# ฟังก์ชันช่วยสำหรับ Preprocessing ข้อความก่อน ทำ Predict
 # ==========================================
-# ใช้ .strip() เพื่อป้องกันปัญหาเรื่องช่องว่างข้างหน้า/หลังชื่อหน้า
-if page.strip() in ["เช็ค SMS", "📨 เช็ค SMS", "📱 เช็ค SMS"]:
-    # Header
-    st.markdown("<h1 class='main-title'>📱 ตรวจสอบข้อความ SMS</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle'>ระบบ AI ตรวจจับข้อความ Spam อัตโนมัติ ด้วยโมเดล Logistic Regression ความแม่นยำ 98.2%</p>", unsafe_allow_html=True)
+def preprocess_text(text):
+    lemmatizer = WordNetLemmatizer()
+    stop_words = set(stopwords.words('english'))
     
+    text = text.lower()
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    words = text.split()
+    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
+    return ' '.join(words)
+
+# ==========================================
+# หน้า 5: เช็ค SMS (Predict Page)
+# ==========================================
+if page == "📝 เช็ค SMS":
+    st.markdown("<h1 class='main-title'>📝 ตรวจสอบข้อความ SMS</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>พิมพ์หรือวางข้อความ SMS ที่ต้องการตรวจสอบ ระบบจะวิเคราะห์ว่าเป็น Spam หรือ ข้อความปกติ</p>", unsafe_allow_html=True)
     st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
     
-    # ----------------------------------------------------
-    # การจัดการ Session State สำหรับช่องพิมพ์ข้อความ
-    # ----------------------------------------------------
-    if 'sms_input' not in st.session_state:
-        st.session_state['sms_input'] = ''
-
-    # ฟังก์ชัน Callback สำหรับกดปุ่มตัวอย่างแล้วนำข้อความไปใส่ในช่องพิมพ์
-    def set_sms_text(text):
-        st.session_state['sms_input'] = text
-
-    # ----------------------------------------------------
-    # ตรวจสอบสถานะโมเดล
-    # ----------------------------------------------------
-    # เช็คว่ามีตัวแปร model_loaded หรือไม่ (ป้องกัน Error หากยังไม่ได้โหลดโมเดล)
-    is_ready = globals().get('model_loaded', True)
-
-    if not is_ready:
-        st.markdown("""
-        <div style='background: #fff5f5; padding: 25px; border-radius: 15px; border-left: 6px solid #e53e3e;'>
-            <h3 style='color: #c53030; margin-top: 0;'>⚠️ ไม่พบไฟล์โมเดล</h3>
-            <p style='color: #1e3a5f;'>กรุณาตรวจสอบว่าไฟล์ <code>sms_spam_model.pkl</code> และ <code>sms_tfidf.pkl</code> อยู่ในโฟลเดอร์เดียวกันกับ app.py</p>
-        </div>
-        """, unsafe_allow_html=True)
+    if not model_loaded:
+        st.error("⚠️ ไม่สามารถโหลดไฟล์โมเดล (`sms_spam_model.pkl` หรือ `sms_tfidf.pkl`) ได้ กรุณาตรวจสอบว่ามีไฟล์อยู่ในระบบหรือไม่")
     else:
-        # สถานะพร้อมใช้งาน
-        st.markdown("""
-        <div style='background: #f0fff4; padding: 20px; border-radius: 12px; border-left: 6px solid #38a169; margin-bottom: 25px;'>
-            <h3 style='color: #276749; margin-top: 0; margin-bottom: 10px;'>✅ ระบบ AI พร้อมใช้งาน</h3>
-            <p style='color: #1e3a5f; margin-bottom: 0;'>โมเดล: <b>Logistic Regression</b> | ความแม่นยำ: <b>98.2%</b> | F1-Score: <b>97.1%</b></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<h3 style='color: #1e3a5f; font-weight: 700;'>📥 กรอกข้อความ SMS ที่นี่</h3>", unsafe_allow_html=True)
         
-        # คำแนะนำวิธีใช้งาน
-        st.markdown("""
-        <div class='info-card'>
-            <h3>📖 วิธีใช้งาน</h3>
-            <ol style='padding-left: 20px; line-height: 2; color: #2d3748;'>
-                <li>พิมพ์ข้อความ SMS ที่ต้องการตรวจสอบในช่องด้านล่าง <b>หรือ</b> กดเลือกปุ่มตัวอย่าง</li>
-                <li>กดปุ่ม <b>"🛡️ ตรวจสอบข้อความ"</b></li>
-                <li>ระบบจะแสดงผลว่าเป็น <b style='color: #e53e3e;'>Spam (ขยะ)</b> หรือ <b style='color: #38a169;'>Ham (ปกติ)</b> พร้อมระดับความมั่นใจ</li>
-            </ol>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # ----------------------------------------------------
-        # ส่วนที่ 1: ช่องกรอกข้อความ
-        # ----------------------------------------------------
-        st.markdown("<h2 style='color: #1e3a5f; font-size: 1.8rem; margin-bottom: 20px; font-weight: 700;'>✏️ กรอกข้อความที่ต้องการตรวจสอบ</h2>", unsafe_allow_html=True)
-        
-        # ผูก key เข้ากับ Session State โดยตรง
-        user_input = st.text_area(
-            "กรอกข้อความ SMS",
-            height=130,
-            placeholder="พิมพ์ข้อความ SMS ที่นี่... หรือเลือกจากตัวอย่างด้านล่าง",
-            label_visibility="collapsed",
-            key="sms_input"
+        # ตัวอย่างข้อความสำหรับทดสอบรวดเร็ว
+        example_option = st.selectbox(
+            "หรือเลือกข้อความตัวอย่างสำหรับทดสอบ:",
+            [
+                "-- เลือกข้อความตัวอย่าง --",
+                "Free entry in 2 a wk weekly comp to win FA Cup final tkts 21st May 2005. Text FA to 87121 to receive entry question",
+                "Had your mobile 11 months or more? U R entitled to Update to the latest colour mobiles with camera Free! Call The Mobile Update Co FREE on 08002986030",
+                "Hey, are we still meeting for lunch today at 12:30?",
+                "Ok lar... Joking wif u oni... I'm going to reach home soon."
+            ]
         )
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        default_text = "" if example_option == "-- เลือกข้อความตัวอย่าง --" else example_option
         
-        # ----------------------------------------------------
-        # ส่วนที่ 2: ปุ่มตัวอย่างข้อความสำหรับทดสอบ
-        # ----------------------------------------------------
-        st.markdown("<h2 style='color: #1e3a5f; font-size: 1.8rem; margin-bottom: 20px; font-weight: 700;'>💡 ตัวอย่างข้อความสำหรับทดสอบ</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #4a5568; margin-bottom: 20px;'>คลิกที่ปุ่มด้านล่างเพื่อเติมข้อความตัวอย่างอัตโนมัติลงในช่องกรอก</p>", unsafe_allow_html=True)
+        user_input = st.text_area("ข้อความ SMS:", value=default_text, height=130, placeholder="พิมพ์ข้อความภาษาอังกฤษที่นี่...")
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("<div style='background: #fff5f5; padding: 20px; border-radius: 12px; border-left: 5px solid #e53e3e;'>", unsafe_allow_html=True)
-            st.markdown("<h3 style='color: #c53030; margin-top: 0; margin-bottom: 15px;'>🚨 ตัวอย่าง Spam (ขยะ)</h3>", unsafe_allow_html=True)
+        col_btn1, col_btn2 = st.columns([1, 4])
+        with col_btn1:
+            analyze_btn = st.button("🔍 ตรวจสอบข้อความ", use_container_width=True)
             
-            spam_examples = [
-                ("🎉 ยินดี! คุณได้รับรางวัล £1000", "Congratulations! You have won a £1000 Walmart gift card. Click here to claim your prize now: http://bit.ly/claim-xxx. Valid 24 hours only!"),
-                ("🚨 บัญชีของคุณถูกระงับ", "URGENT! Your bank account has been suspended due to suspicious activity. Update your details immediately at http://fake-bank.com/update to avoid permanent closure."),
-                ("💰 เงินกู้ดอกเบี้ย 0%", "Special offer! Get a 0% interest loan up to £50,000 with no collateral required. No credit check needed! Call 090-xxx-xxxx now or reply YES to apply.")
-            ]
-            
-            for i, (label, text) in enumerate(spam_examples):
-                st.button(
-                    label, 
-                    key=f"spam_btn_{i}", 
-                    use_container_width=True,
-                    on_click=set_sms_text,
-                    args=(text,)
-                )
-            
-            st.markdown("</div>", unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("<div style='background: #f0fff4; padding: 20px; border-radius: 12px; border-left: 5px solid #38a169;'>", unsafe_allow_html=True)
-            st.markdown("<h3 style='color: #276749; margin-top: 0; margin-bottom: 15px;'>🟢 ตัวอย่าง Ham (ปกติ)</h3>", unsafe_allow_html=True)
-            
-            ham_examples = [
-                ("🍲 นัดทานข้าวเย็น", "Hey, are you free tonight? Let's grab dinner together at that new restaurant downtown. Let me know what time works for you!"),
-                ("📅 แจ้งเตือนประชุม", "Reminder: Team meeting tomorrow at 10:00 AM in Conference Room B. Please bring your quarterly reports and project updates. See you there!"),
-                ("🙏 ขอบคุณสำหรับความช่วยเหลือ", "Thanks so much for your help with the project today. I really appreciate it! Let's catch up again next week. Have a great evening!")
-            ]
-            
-            for i, (label, text) in enumerate(ham_examples):
-                st.button(
-                    label, 
-                    key=f"ham_btn_{i}", 
-                    use_container_width=True,
-                    on_click=set_sms_text,
-                    args=(text,)
-                )
-            
-            st.markdown("</div>", unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
-        
-        # ----------------------------------------------------
-        # ส่วนที่ 3: ปุ่มตรวจสอบและแสดงผลลัพธ์
-        # ----------------------------------------------------
-        check_clicked = st.button("🛡️ ตรวจสอบข้อความ", use_container_width=True, type="primary")
-        
-        if check_clicked:
-            text_to_check = st.session_state.get('sms_input', '').strip()
-            
-            if not text_to_check:
-                st.markdown("""
-                <div style='background: #fffaf0; padding: 20px; border-radius: 12px; border-left: 6px solid #dd6b20;'>
-                    <h3 style='color: #c05621; margin-top: 0;'>⚠️ กรุณากรอกข้อความ</h3>
-                    <p style='color: #1e3a5f; margin-bottom: 0;'>พิมพ์ข้อความหรือเลือกตัวอย่างก่อนทำการตรวจสอบ</p>
-                </div>
-                """, unsafe_allow_html=True)
+        if analyze_btn:
+            if user_input.strip() == "":
+                st.warning("⚠️ กรุณากรอกข้อความก่อนทำการวิเคราะห์")
             else:
-                with st.spinner('🔄 AI กำลังวิเคราะห์ข้อความ...'):
-                    try:
-                        # 1. Preprocessing & Vectorization
-                        clean_text = preprocess_text(text_to_check)
-                        vectorized_text = tfidf.transform([clean_text])
-                        
-                        # 2. Prediction
-                        prediction = model.predict(vectorized_text)[0]
-                        probability = model.predict_proba(vectorized_text)[0]
-                        
-                        spam_prob = probability[1] * 100
-                        ham_prob = probability[0] * 100
-                        
-                        st.markdown("<br>", unsafe_allow_html=True)
-                        st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
-                        st.markdown("<h2 style='color: #1e3a5f; font-size: 1.8rem; margin-bottom: 20px; font-weight: 700;'>📊 ผลลัพธ์การวิเคราะห์</h2>", unsafe_allow_html=True)
-                        
-                        # แสดงการ์ดผลลัพธ์
-                        if prediction == 1:  # Spam
-                            st.markdown(f"""
-                            <div style='background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%); padding: 30px; border-radius: 15px; border-left: 8px solid #e53e3e; box-shadow: 0 10px 25px rgba(229, 62, 62, 0.15);'>
-                                <h2 style='color: #c53030; margin-top: 0; margin-bottom: 15px; font-size: 1.8rem;'>🚨 ตรวจพบ: SPAM (ข้อความขยะ/มิจฉาชีพ)</h2>
-                                <div style='background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;'>
-                                    <p style='color: #1e3a5f; font-size: 1.1rem; margin-bottom: 10px;'><b>ระดับความมั่นใจ:</b></p>
-                                    <p style='color: #e53e3e; font-size: 2.5rem; font-weight: 800; margin: 0;'>{spam_prob:.2f}%</p>
-                                </div>
-                                <h4 style='color: #c53030; margin-bottom: 10px;'>⚠️ คำเตือนและคำแนะนำ:</h4>
-                                <ul style='color: #1e3a5f; line-height: 1.8; padding-left: 20px;'>
-                                    <li>🚫 <b>ห้ามคลิกลิงก์ใดๆ</b> ในข้อความเด็ดขาด</li>
-                                    <li>🔒 <b>ห้ามให้ข้อมูลส่วนตัว</b> เช่น รหัสผ่าน, เลขบัตรเครดิต</li>
-                                    <li>📵 <b>ห้ามโทรกลับ</b> หรือตอบกลับข้อความนี้</li>
-                                    <li>🗑️ <b>แนะนำให้บล็อกและลบ</b> ข้อความนี้ทิ้งทันที</li>
-                                </ul>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        else:  # Ham
-                            st.markdown(f"""
-                            <div style='background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%); padding: 30px; border-radius: 15px; border-left: 8px solid #38a169; box-shadow: 0 10px 25px rgba(56, 161, 105, 0.15);'>
-                                <h2 style='color: #276749; margin-top: 0; margin-bottom: 15px; font-size: 1.8rem;'>✅ ตรวจพบ: HAM (ข้อความปกติ/ปลอดภัย)</h2>
-                                <div style='background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;'>
-                                    <p style='color: #1e3a5f; font-size: 1.1rem; margin-bottom: 10px;'><b>ระดับความมั่นใจ:</b></p>
-                                    <p style='color: #38a169; font-size: 2.5rem; font-weight: 800; margin: 0;'>{ham_prob:.2f}%</p>
-                                </div>
-                                <h4 style='color: #276749; margin-bottom: 10px;'>✔️ ผลการวิเคราะห์:</h4>
-                                <ul style='color: #1e3a5f; line-height: 1.8; padding-left: 20px;'>
-                                    <li>✅ ข้อความนี้ดูปลอดภัย เป็นข้อความสนทนาทั่วไป</li>
-                                    <li>✅ ไม่พบรูปแบบหรือคำศัพท์ที่บ่งบอกว่าเป็น Spam</li>
-                                    <li>✅ สามารถตอบกลับหรือดำเนินการต่อได้ตามปกติ</li>
-                                </ul>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        # รายละเอียดเชิงลึก
-                        st.markdown("<br>", unsafe_allow_html=True)
-                        with st.expander("🔬 ดูรายละเอียดการประมวลผลของ AI", expanded=False):
-                            st.markdown("<h4 style='color: #1e3a5f;'>📝 ข้อความต้นฉบับ</h4>", unsafe_allow_html=True)
-                            st.markdown(f"<div style='background: #f7fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #2c5282; color: #1e3a5f; font-family: monospace;'>{text_to_check}</div>", unsafe_allow_html=True)
-                            
-                            st.markdown("<br>", unsafe_allow_html=True)
-                            st.markdown("<h4 style='color: #1e3a5f;'>🧹 ข้อความหลังทำความสะอาด (Preprocessing)</h4>", unsafe_allow_html=True)
-                            st.markdown(f"<div style='background: #f7fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #38a169; color: #1e3a5f; font-family: monospace;'>{clean_text}</div>", unsafe_allow_html=True)
-                            
-                            st.markdown("<br>", unsafe_allow_html=True)
-                            st.markdown("<h4 style='color: #1e3a5f;'>📈 สัดส่วนความน่าจะเป็น</h4>", unsafe_allow_html=True)
-                            st.markdown(f"<p style='color: #1e3a5f; font-weight: 600;'>🔴 Spam: {spam_prob:.2f}%</p>", unsafe_allow_html=True)
-                            st.progress(float(probability[1]))
-                            st.markdown(f"<p style='color: #1e3a5f; font-weight: 600;'>🟢 Ham: {ham_prob:.2f}%</p>", unsafe_allow_html=True)
-                            st.progress(float(probability[0]))
-                            
-                    except Exception as e:
-                        st.markdown(f"""
-                        <div style='background: #fff5f5; padding: 20px; border-radius: 12px; border-left: 6px solid #e53e3e;'>
-                            <h3 style='color: #c53030; margin-top: 0;'>❌ เกิดข้อผิดพลาด</h3>
-                            <p style='color: #1e3a5f;'>{str(e)}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
+                # Preprocess & Predict
+                cleaned_input = preprocess_text(user_input)
+                vectorized_input = tfidf.transform([cleaned_input])
+                
+                prediction = model.predict(vectorized_input)[0]
+                proba = model.predict_proba(vectorized_input)[0]
+                
+                spam_proba = proba[1] * 100
+                ham_proba = proba[0] * 100
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # แสดงผลการทำนาย
+                if prediction == 1:
+                    st.markdown(f"""
+                    <div style='background-color: #fff5f5; border: 2px solid #e53e3e; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 8px 20px rgba(229, 62, 62, 0.15);'>
+                        <h2 style='color: #e53e3e !important; font-size: 2.2rem; font-weight: 800; margin-bottom: 10px;'>🚨 ตรวจพบข้อความ SPAM (ขยะ/สแปม)</h2>
+                        <p style='color: #c53030 !important; font-size: 1.2rem; font-weight: 600;'>ระวัง! ข้อความนี้มีลักษณะเข้าข่ายการหลอกลวง โฆษณาชวนเชื่อ หรือข้อความรบกวน</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div style='background-color: #f0fff4; border: 2px solid #38a169; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 8px 20px rgba(56, 161, 105, 0.15);'>
+                        <h2 style='color: #276749 !important; font-size: 2.2rem; font-weight: 800; margin-bottom: 10px;'>✅ ข้อความ HAM (ปกติ)</h2>
+                        <p style='color: #2f855a !important; font-size: 1.2rem; font-weight: 600;'>ข้อความนี้ปลอดภัย มีลักษณะเป็นการสนทนาทั่วไป</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # แสดงความมั่นใจของโมเดล (Confidence Score)
+                col_res1, col_res2 = st.columns(2)
+                with col_res1:
+                    st.markdown(f"""
+                    <div class='stat-card' style='background: linear-gradient(135deg, #38a169 0%, #276749 100%);'>
+                        <div class='stat-number'>{ham_proba:.2f}%</div>
+                        <div class='stat-label'>โอกาสที่เป็น HAM (ปกติ)</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_res2:
+                    st.markdown(f"""
+                    <div class='stat-card' style='background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);'>
+                        <div class='stat-number'>{spam_proba:.2f}%</div>
+                        <div class='stat-label'>โอกาสที่เป็น SPAM (ขยะ)</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 
 # ==========================================
