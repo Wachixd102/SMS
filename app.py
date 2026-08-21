@@ -860,38 +860,53 @@ if page == "📝 เช็ค SMS":
                     """, unsafe_allow_html=True)
 
 
-                    # ==========================================
+# ==========================================
 # หน้า 6: ผู้พัฒนา (Developer)
 # ==========================================
 if page == "👨‍💻 ผู้พัฒนา":
     st.markdown("<h1 class='main-title'>👨‍💻 เกี่ยวกับผู้พัฒนา</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle'>ข้อมูลผู้จัดทำโปรเจกต์ SMS Spam Classification System</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>ข้อมูลผู้จัดทำโปรเจกต์ระบบตรวจจับ SMS ขยะ (SMS Spam Classification System)</p>", unsafe_allow_html=True)
     
     st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 2])
+    # ส่วนกรอกข้อมูลผู้พัฒนา (สามารถแก้ไขได้จากหน้าเว็บ)
+    st.markdown("<h3 style='color: #1e3a5f; font-weight: 700; margin-bottom: 15px;'>📝 ข้อมูลผู้จัดทำ</h3>", unsafe_allow_html=True)
     
-    with col1:
-        st.markdown("""
-        <div style='text-align: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.15); border-top: 5px solid #2c5282;'>
-            <img src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png' style='width: 140px; height: 140px; border-radius: 50%; margin-bottom: 20px; background: #ebf4ff; padding: 10px;'>
-            <h3 style='color: #1e3a5f !important; font-size: 1.5rem; font-weight: 700; margin-bottom: 5px;'>นักศึกษาผู้จัดทำ</h3>
-            <p style='color: #4a5568 !important; font-size: 1rem; font-weight: 600;'>Machine Learning Developer</p>
+    col_input1, col_input2 = st.columns(2)
+    with col_input1:
+        dev_name = st.text_input("ชื่อ-นามสกุล:", value="นายผู้จัดทำ โปรเจกต์")
+        dev_id = st.text_input("รหัสนักศึกษา:", value="6XXXXXXXX-X")
+    with col_input2:
+        dev_dept = st.text_input("สาขาวิชา / คณะ:", value="สาขาวิชาวิทยาการคอมพิวเตอร์ / เทคโนโลยีสารสนเทศ")
+        dev_role = st.text_input("บทบาทหน้าที่:", value="Developer / Machine Learning Engineer")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # ส่วนแสดงผล Profile Card และรายละเอียดโปรเจกต์
+    col_card1, col_card2 = st.columns([1, 2])
+    
+    with col_card1:
+        st.markdown(f"""
+        <div style='text-align: center; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.12); border-top: 5px solid #2c5282;'>
+            <img src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png' style='width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; background: #ebf4ff; padding: 10px;'>
+            <h3 style='color: #1e3a5f !important; font-size: 1.3rem; font-weight: 700; margin-bottom: 5px;'>{dev_name}</h3>
+            <p style='color: #2b6cb0 !important; font-size: 0.95rem; font-weight: 600; margin-bottom: 5px;'>รหัส: {dev_id}</p>
+            <p style='color: #4a5568 !important; font-size: 0.85rem; margin-bottom: 0;'>{dev_dept}</p>
         </div>
         """, unsafe_allow_html=True)
     
-    with col2:
-        st.markdown("""
-        <div class='info-card'>
-            <h3>📌 ข้อมูลโปรเจกต์เพิ่มเติม</h3>
-            <p><b>ชื่อโปรเจกต์:</b> SMS Spam Classification System (Spam Shield AI)</p>
-            <p><b>รายวิชา:</b> Machine Learning Course (Mini Project 2026)</p>
-            <p><b>ขอบเขตงาน:</b> 
-                <ul style='padding-left: 20px; color: #2d3748;'>
-                    <li>การสำรวจและทำความสะอาดข้อมูล (Data Preprocessing & Cleaning)</li>
-                    <li>กระบวนการสกัดคุณลักษณะด้วยเทคนิค TF-IDF Vectorization</li>
-                    <li>ฝึกสอนและเปรียบเทียบประสิทธิภาพโมเดล Machine Learning หลายรูปแบบ</li>
-                    <li>พัฒนา Web Application ด้วย Streamlit Framework</li>
+    with col_card2:
+        st.markdown(f"""
+        <div class='info-card' style='background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.12); border: 1px solid #e2e8f0;'>
+            <h3 style='color: #1e3a5f !important; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;'>📌 รายละเอียดงานและเทคโนโลยีที่ใช้</h3>
+            <p style='margin-bottom: 8px;'><b>ตำแหน่งในทีม:</b> {dev_role}</p>
+            <p style='margin-bottom: 8px;'><b>เครื่องมือที่ใช้พัฒนา:</b> Python, Scikit-Learn, Streamlit, Pandas, NLTK</p>
+            <p style='margin-bottom: 8px;'><b>โมเดลหลัก:</b> TF-IDF Vectorizer + Machine Learning Classifier</p>
+            <p style='margin-bottom: 0;'><b>ขอบเขตความรับผิดชอบ:</b> 
+                <ul style='padding-left: 20px; color: #4a5568; margin-top: 5px; margin-bottom: 0;'>
+                    <li>ทำ Data Cleaning, Tokenization และ Lemmatization</li>
+                    <li>เทรนและประเมินประสิทธิภาพโมเดลจำแนกประเภทข้อความ (Spam Detection)</li>
+                    <li>ออกแบบและพัฒนาส่วนต่อประสานผู้ใช้ (UI/UX) ด้วย Streamlit</li>
                 </ul>
             </p>
         </div>
@@ -899,14 +914,11 @@ if page == "👨‍💻 ผู้พัฒนา":
         
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Footer Banner
+    # Footer Banner ด้านล่างสุด
     st.markdown("""
-    <div style='background: white; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.1); border: 1px solid #e2e8f0;'>
-        <p style='color: #1e3a5f !important; font-size: 1.1rem; font-weight: 700; margin: 0;'>
-            📱 SMS Spam Classification Project
-        </p>
-        <p style='color: #718096 !important; font-size: 0.95rem; margin-top: 5px;'>
-            Mini Project 2026 | Developed with ❤️ using Python, Scikit-Learn, and Streamlit
+    <div style='background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%); padding: 20px; border-radius: 15px; text-align: center; color: white;'>
+        <p style='font-size: 1rem; font-weight: 600; margin: 0;'>
+            🚀 SMS Spam Classification Project — Machine Learning Mini Project
         </p>
     </div>
     """, unsafe_allow_html=True)
