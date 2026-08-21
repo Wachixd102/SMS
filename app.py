@@ -183,8 +183,8 @@ html_content = """
             <h1>📱 SMS Spam Classification</h1>
             <p>โปรเจกต์ Machine Learning สำหรับจำแนกข้อความ SMS</p>
             <p style="margin-top: 10px; font-size: 1em;">
-                <strong>ผู้พัฒนา:</strong> [ชื่อ-นามสกุล] | 
-                <strong>รหัสนักศึกษา:</strong> [รหัส] | 
+                <strong>ผู้พัฒนา:</strong> วชิรวิทย์ พรสวาท | 
+                <strong>รหัสนักศึกษา:</strong> 664245032 | 
                 <strong>ปี:</strong> 2026
             </p>
         </div>
