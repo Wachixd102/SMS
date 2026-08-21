@@ -889,7 +889,7 @@ if "ผู้พัฒนา" in page:
     with col_card1:
         st.markdown(f"""
         <div style='text-align: center; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.12); border-top: 5px solid #2c5282;'>
-            <img src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png' style='width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; background: #ebf4ff; padding: 10px;'>
+            <img src='https://scontent.fbkk2-8.fna.fbcdn.net/v/t39.30808-6/711709473_2394837197667750_2574019075777161019_n.jpg?stp=dst-jpg_tt6&cstp=mx960x960&ctp=s960x960&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHyrJ0ZpMEU7qsxr6K6HwgCqJDikdAp1_mokOKR0CnX-aLJqAOrj1A_c9LKyLR2Qpn_DCnjIDeuwD2XaCr6DHGN&_nc_ohc=nS65dH1T3bMQ7kNvwG_bGA9&_nc_oc=AdqGRUjlKCQ7MwAiTLH4-eFukfrgMTnVsr-rk638QC8EV5iShQspoF4tXGwi4Jaemcw&_nc_zt=23&_nc_ht=scontent.fbkk2-8.fna&_nc_gid=x8-IYmq1wbbgLC7nL3vvyQ&_nc_ss=7b2a8&oh=00_AQFG_umiZK4plzAyGCyVkx6HWPtZjHIUTtYsyrfXpzFlGw&oe=6A8E0D16' style='width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; background: #ebf4ff; padding: 10px;'>
             <h3 style='color: #1e3a5f !important; font-size: 1.3rem; font-weight: 700; margin-bottom: 5px;'>{dev_name}</h3>
             <p style='color: #2b6cb0 !important; font-size: 0.95rem; font-weight: 600; margin-bottom: 5px;'>รหัส: {dev_id}</p>
             <p style='color: #4a5568 !important; font-size: 0.85rem; margin-bottom: 0;'>{dev_dept}</p>
