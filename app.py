@@ -757,7 +757,7 @@ if page == "📈 ประสิทธิภาพโมเดล":
 # ==========================================
 # หน้า 6: ผู้พัฒนา (Developer)
 # ==========================================
-if page == "👨‍💻 ผู้พัฒนา":
+if page == "👨‍💻 💻 ผู้พัฒนา":
     st.markdown("<h1 class='main-title'>👨‍💻 เกี่ยวกับผู้พัฒนา</h1>", unsafe_allow_html=True)
     st.markdown("<p class='subtitle'>ข้อมูลผู้จัดทำโปรเจกต์ระบบตรวจจับ SMS ขยะ (SMS Spam Classification System)</p>", unsafe_allow_html=True)
     
