@@ -162,36 +162,42 @@ elif page == "📈 ประสิทธิภาพโมเดล":
 # ==========================================
 # หน้า 5: เช็ค SMS (สำคัญ - แก้ไขแล้ว)
 # ==========================================
-elif page == "📝 เช็ค SMS":
-    st.title("📝 ตรวจสอบข้อความ SMS")
+elif page == "🔍 เช็ค SMS":
+    st.title(" ตรวจสอบข้อความ SMS")
     st.markdown("---")
     
     if not model_loaded:
-        st.error("⚠️ ไม่พบไฟล์โมเดล! กรุณาตรวจสอบว่าไฟล์ `sms_spam_model.pkl` และ `sms_tfidf.pkl` อยู่ในโฟลเดอร์เดียวกัน")
-        st.info("💡 วิธีแก้: รันโค้ด train_new_model.py เพื่อสร้างไฟล์โมเดลใหม่ แล้วอัปโหลดขึ้น GitHub")
+        st.error("⚠️ ไม่พบไฟล์โมเดล!")
+        st.info("กรุณาอัปโหลดไฟล์ sms_spam_model.pkl และ sms_tfidf.pkl ขึ้น GitHub")
     else:
         st.success("✅ โมเดลพร้อมใช้งาน!")
         
         st.info("""
-        ** วิธีใช้งาน:**
-        1. พิมพ์หรือวางข้อความ SMS ที่ต้องการตรวจสอบในช่องด้านล่าง
-        2. กดปุ่ม **"ตรวจสอบข้อความ"**
-        3. ระบบจะแสดงผลว่าเป็น **Spam (ขยะ)** หรือ **Ham (ปกติ)** พร้อมระดับความมั่นใจ
+        **📖 วิธีใช้งาน:**
+        1. คลิกที่ปุ่มตัวอย่างด้านล่างเพื่อเติมข้อความอัตโนมัติ
+        2. หรือกดปุ่ม **"ตรวจสอบข้อความ"**
+        3. ระบบจะแสดงผลว่าเป็น **Spam (ขยะ)** หรือ **Ham (ปกติ)**
         """)
         
         st.markdown("---")
         
+        # Initialize session state
+        if 'test_text' not in st.session_state:
+            st.session_state['test_text'] = ''
+        
         # ส่วน Input
-        st.subheader("✏️ กรอกข้อความที่ต้องการตรวจสอบ")
+        st.subheader("️ กรอกข้อความที่ต้องการตรวจสอบ")
         user_input = st.text_area(
             "พิมพ์ข้อความ SMS ที่นี่:",
+            value=st.session_state['test_text'],
             height=120,
-            placeholder="ตัวอย่าง: คุณได้รับรางวัลเงินสด 10,000 บาท คลิกที่นี่เพื่อรับรางวัล...",
-            help="กรอกข้อความ SMS ที่ต้องการตรวจสอบว่าเป็นสแปมหรือไม่"
+            placeholder="ตัวอย่าง: URGENT! You have won a £1000 prize! Call now!",
+            help="กรอกข้อความ SMS ที่ต้องการตรวจสอบ",
+            key="sms_input"
         )
         
         # ตัวอย่างข้อความ
-        st.markdown("###  ตัวอย่างข้อความสำหรับทดสอบ")
+        st.markdown("### 💡 ตัวอย่างข้อความสำหรับทดสอบ")
         st.caption("คลิกที่ปุ่มด้านล่างเพื่อเติมข้อความตัวอย่างอัตโนมัติ")
         
         col1, col2 = st.columns(2)
@@ -199,92 +205,73 @@ elif page == "📝 เช็ค SMS":
         with col1:
             st.markdown("**🔴 ตัวอย่าง Spam (ขยะ):**")
             spam_examples = [
-                "🎉 ยินดีด้วย! คุณได้รับรางวัลเงินสด 10,000 บาท คลิกที่นี่เพื่อรับรางวัล",
-                "URGENT! บัญชีธนาคารของคุณถูกระงับ กรุณาอัปเดตข้อมูลทันที",
-                "💰 โอกาสพิเศษ! รับเงินกู้ดอกเบี้ย 0% ไม่ต้องมีหลักประกัน"
+                "WINNER!! As a valued network customer you have been selected to receive a £900 prize reward! To claim call 09061701461",
+                "URGENT! Your Mobile No. was awarded £2000 Bonus Caller Prize. Call 09064019788",
+                "FREE entry in 2 a wkly comp to win FA Cup final tkts. Text FA to 87121"
             ]
             for i, ex in enumerate(spam_examples):
                 if st.button(f"🔴 Spam ตัวอย่างที่ {i+1}", key=f"spam_{i}", use_container_width=True):
                     st.session_state['test_text'] = ex
+                    st.rerun()
         
         with col2:
-            st.markdown("**🟢 ตัวอย่าง Ham (ปกติ):**")
+            st.markdown("** ตัวอย่าง Ham (ปกติ):**")
             ham_examples = [
-                "สวัสดีครับ เย็นนี้ว่างไหมครับ ไปทานข้าวด้วยกันนะครับ",
-                "ประชุมวันพรุ่งนี้เวลา 10:00 น. อย่าลืมนำเอกสารมาด้วยนะครับ",
-                "ขอบคุณมากครับสำหรับความช่วยเหลือ ไว้เจอกันใหม่นะครับ"
+                "Go until jurong point, crazy.. Available only in bugis n great world",
+                "Ok lar... Joking wif u oni...",
+                "Nah I don't think he goes to usf, he lives around here though"
             ]
             for i, ex in enumerate(ham_examples):
-                if st.button(f"🟢 Ham ตัวอย่างที่ {i+1}", key=f"ham_{i}", use_container_width=True):
+                if st.button(f" Ham ตัวอย่างที่ {i+1}", key=f"ham_{i}", use_container_width=True):
                     st.session_state['test_text'] = ex
+                    st.rerun()
         
         st.markdown("---")
         
         # ปุ่มทำนายผล
-        predict_button = st.button(" ตรวจสอบข้อความ", use_container_width=True, type="primary")
+        predict_button = st.button("🔍 ตรวจสอบข้อความ", use_container_width=True, type="primary")
         
-        if predict_button or 'test_text' in st.session_state:
-            text_to_check = user_input if user_input else st.session_state.get('test_text', '')
+        if predict_button:
+            text_to_check = user_input
             
             if text_to_check.strip():
                 with st.spinner('⏳ กำลังวิเคราะห์ข้อความ...'):
                     try:
-                        # 1. Preprocessing
                         clean_text = preprocess_text(text_to_check)
-                        
-                        # 2. Transform ด้วย TF-IDF
                         vectorized_text = tfidf.transform([clean_text])
-                        
-                        # 3. ทำนายผล
                         prediction = model.predict(vectorized_text)[0]
                         probability = model.predict_proba(vectorized_text)[0]
                         
-                        # 4. แสดงผลลัพธ์
                         st.markdown("---")
                         st.subheader("📊 ผลลัพธ์การวิเคราะห์")
                         
-                        if prediction == 1:  # Spam
+                        if prediction == 1:
                             st.error(f"""
                             ### 🚨 ข้อความนี้คือ SPAM (ขยะ)!
-                            
                             **ระดับความมั่นใจ:** {probability[1]*100:.2f}%
                             
-                            ️ **คำเตือน:** ข้อความนี้มีแนวโน้มสูงที่จะเป็นสแปม 
-                            - ไม่ควรคลิกลิงก์ใดๆ ในข้อความ
-                            - ไม่ควรให้ข้อมูลส่วนตัว
-                            - แนะนำให้ลบข้อความนี้ทิ้ง
+                            ⚠️ ข้อความนี้มีแนวโน้มสูงที่จะเป็นสแปม
                             """)
-                        else:  # Ham
+                        else:
                             st.success(f"""
                             ### ✅ ข้อความนี้คือ HAM (ปกติ)
-                            
                             **ระดับความมั่นใจ:** {probability[0]*100:.2f}%
                             
-                            ✔️ ข้อความนี้ดูปลอดภัย เป็นข้อความปกติ
+                            ✔️ ข้อความนี้ดูปลอดภัย
                             """)
                         
-                        # รายละเอียดเพิ่มเติม
-                        with st.expander("🔬 ดูรายละเอียดการประมวลผล (ไม่บังคับ)"):
+                        with st.expander("🔬 ดูรายละเอียดเพิ่มเติม"):
                             st.markdown("**ข้อความต้นฉบับ:**")
                             st.code(text_to_check, language='text')
-                            
-                            st.markdown("**🧹 ข้อความหลังทำความสะอาด:**")
+                            st.markdown("**หลังทำความสะอาด:**")
                             st.code(clean_text, language='text')
-                            
-                            st.markdown("**ความยาวข้อความ:**")
-                            col_a, col_b = st.columns(2)
-                            col_a.metric("ต้นฉบับ", f"{len(text_to_check)} ตัวอักษร")
-                            col_b.metric("หลังทำความสะอาด", f"{len(clean_text)} ตัวอักษร")
-                            
-                            st.markdown("**📈 ระดับความน่าจะเป็น:**")
-                            col_c, col_d = st.columns(2)
-                            col_c.metric("🔴 Spam", f"{probability[1]*100:.2f}%")
-                            col_d.metric(" Ham", f"{probability[0]*100:.2f}%")
+                            st.write(f"- Spam: {probability[1]*100:.2f}%")
+                            st.write(f"- Ham: {probability[0]*100:.2f}%")
                             
                     except Exception as e:
                         st.error(f"❌ เกิดข้อผิดพลาด: {e}")
             else:
-                st.warning("⚠️ กรุณากรอกข้อความก่อนทำการตรวจสอบ")
+                st.warning("⚠️ กรุณากรอกข้อความก่อน")
 
 # ==========================================
 # หน้า 6: ผู้พัฒนา (สำคัญ - แก้ไขแล้ว)
