@@ -326,6 +326,131 @@ if page == "🏠 หน้าหลัก":
         </div>
         """, unsafe_allow_html=True)
 
+        # ==========================================
+# หน้า 2: การเตรียมข้อมูล (Data Preparation)
+# ==========================================
+if page == " การเตรียมข้อมูล":
+    # Header
+    st.markdown("<h1 class='main-title'> การเตรียมข้อมูล (Data Preparation)</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>กระบวนการแปลงข้อความดิบ (Raw Text) ให้อยู่ในรูปแบบที่โมเดล Machine Learning สามารถเรียนรู้และประมวลผลได้</p>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
+    
+    # Data Overview
+    st.markdown("<h2 style='color: #1e3a5f; font-size: 2rem; margin-bottom: 25px; font-weight: 700;'> ภาพรวม Dataset</h2>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class='info-card'>
+        <h3> รายละเอียดข้อมูลต้นฉบับ</h3>
+        <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 20px;'>
+            <div>
+                <p><b>ชื่อ Dataset:</b> SMS Spam Collection</p>
+                <p><b>แหล่งที่มา:</b> UCI Machine Learning Repository / Kaggle</p>
+                <p><b>จำนวนข้อมูล:</b> 5,572 ข้อความ SMS</p>
+            </div>
+            <div>
+                <p><b>คอลัมน์ v1 (Label):</b> ระบุประเภทข้อความ (ham / spam)</p>
+                <p><b>คอลัมน์ v2 (Message):</b> เนื้อหาข้อความ SMS</p>
+                <p><b>การแปลง Label:</b> ham ➔ 0, spam ➔ 1 (Label Encoding)</p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Preprocessing Pipeline
+    st.markdown("<h2 style='color: #1e3a5f; font-size: 2rem; margin-bottom: 25px; font-weight: 700;'>🧹 ขั้นตอนการทำความสะอาดข้อมูล (Preprocessing Pipeline)</h2>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class='info-card'>
+            <h3>1️⃣ Lowercase Conversion</h3>
+            <p>แปลงข้อความทั้งหมดให้เป็น <b>ตัวพิมพ์เล็ก</b> เพื่อป้องกันให้โมเดลมองว่าคำเดียวกันแต่คนละตัวพิมพ์เป็นคำคนละคำ (เช่น "Free" และ "free" จะถูกรวมเป็นคำเดียวกัน)</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class='info-card'>
+            <h3>2️⃣ Remove Punctuation & Numbers</h3>
+            <p>ลบ <b>สัญลักษณ์พิเศษ ตัวเลข และเครื่องหมายวรรคตอน</b> ออก โดยใช้ Regular Expression (Regex) เหลือไว้เฉพาะตัวอักษรภาษาอังกฤษ เพื่อลด Noise ในข้อมูล</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class='info-card'>
+            <h3>3️⃣ Remove Stopwords</h3>
+            <p>ลบ <b>คำที่พบบ่อยแต่ไม่มีความหมายเฉพาะเจาะจง</b> ออก เช่น the, is, in, and, a, to เพื่อลดขนาดข้อมูลและให้โมเดลโฟกัสไปที่คำสำคัญจริงๆ</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class='info-card'>
+            <h3>4️⃣ Lemmatization</h3>
+            <p>ตัดคำให้เหลือ <b>รากศัพท์ (Root Word)</b> โดยใช้ NLTK WordNetLemmatizer (เช่น "running" ➔ "run", "better" ➔ "good") ช่วยให้โมเดลเข้าใจความหมายได้แม่นยำขึ้น</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Vectorization & Splitting
+    st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #1e3a5f; font-size: 2rem; margin-bottom: 25px; font-weight: 700;'>🔢 การแปลงข้อมูลและแบ่งชุดข้อมูล</h2>", unsafe_allow_html=True)
+    
+    colA, colB = st.columns(2)
+    
+    with colA:
+        st.markdown("""
+        <div class='info-card'>
+            <h3>📈 TF-IDF Vectorization</h3>
+            <p>แปลงข้อความที่ทำความสะอาดแล้วให้กลายเป็น <b>ตัวเลข (Numerical Vector)</b> โดยใช้เทคนิค <b>TF-IDF (Term Frequency-Inverse Document Frequency)</b></p>
+            <ul style='padding-left: 20px; margin-top: 10px;'>
+                <li>กำหนดจำนวน Features สูงสุด: <b>3,000 คำ</b></li>
+                <li>คำที่มีความสำคัญสูงในเอกสารแต่พบน้อยในภาพรวม จะได้ค่าน้ำหนักมาก</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with colB:
+        st.markdown("""
+        <div class='info-card'>
+            <h3>✂️ Train-Test Split</h3>
+            <p>แบ่งข้อมูลออกเป็น 2 ส่วนเพื่อใช้ฝึกสอนและทดสอบโมเดล:</p>
+            <ul style='padding-left: 20px; margin-top: 10px;'>
+                <li><b>Training Set (80%):</b> 4,457 ตัวอย่าง ใช้สำหรับสอนโมเดล</li>
+                <li><b>Testing Set (20%):</b> 1,115 ตัวอย่าง ใช้สำหรับวัดผล</li>
+                <li><b>Stratified Sampling:</b> รักษาอัตราส่วน Ham/Spam ให้เท่ากันทั้งสองชุด</li>
+                <li><b>Random State:</b> 42 (เพื่อให้ผลลัพธ์คงที่ทุกครั้ง)</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Visual Pipeline Summary
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #1e3a5f; font-size: 2rem; margin-bottom: 25px; font-weight: 700;'>🔄 สรุปขั้นตอน Pipeline</h2>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style='background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.15); text-align: center; border: 2px solid #e2e8f0;'>
+        <div style='display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; font-size: 1.1rem; color: #1e3a5f; font-weight: 600;'>
+            <div style='background: #ebf4ff; padding: 15px 20px; border-radius: 10px; border: 1px solid #2c5282;'> Raw Text</div>
+            <div style='font-size: 1.5rem; color: #2c5282;'>➔</div>
+            <div style='background: #ebf4ff; padding: 15px 20px; border-radius: 10px; border: 1px solid #2c5282;'>🔡 Lowercase</div>
+            <div style='font-size: 1.5rem; color: #2c5282;'>➔</div>
+            <div style='background: #ebf4ff; padding: 15px 20px; border-radius: 10px; border: 1px solid #2c5282;'>🧹 Clean Text</div>
+            <div style='font-size: 1.5rem; color: #2c5282;'>➔</div>
+            <div style='background: #ebf4ff; padding: 15px 20px; border-radius: 10px; border: 1px solid #2c5282;'> NLP (NLTK)</div>
+            <div style='font-size: 1.5rem; color: #2c5282;'>➔</div>
+            <div style='background: #ebf4ff; padding: 15px 20px; border-radius: 10px; border: 1px solid #2c5282;'>🔢 TF-IDF</div>
+            <div style='font-size: 1.5rem; color: #2c5282;'>➔</div>
+            <div style='background: #1e3a5f; color: white; padding: 15px 20px; border-radius: 10px;'>🤖 ML Model</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # ==========================================
 # Footer
 # ==========================================
