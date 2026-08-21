@@ -15,31 +15,30 @@ nltk.download('wordnet', quiet=True)
 nltk.download('punkt', quiet=True)
 
 # ==========================================
-# 1. Custom CSS for Beautiful UI
+# Custom CSS for Beautiful UI
 # ==========================================
 st.set_page_config(
     page_title="SMS Spam Classifier AI",
-    page_icon="🛡️",
+    page_icon="️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Inject Custom CSS
+# Inject Custom CSS - แก้ไขสีให้มองเห็นชัดเจนทุกหน้า
 st.markdown("""
 <style>
-    /* Main Background & Font - แก้ไขสีตัวอักษรให้ชัดเจน */
+    /* Global Styles */
     .main { 
-        background-color: #f8f9fa; 
-        color: #2c3e50;
+        background-color: #f0f2f6; 
+        color: #1a1a1a !important;
     }
     
-    /* บังคับให้ทุกตัวอักษรใน main มีสีเข้ม */
-    .main p, .main h1, .main h2, .main h3, .main h4, .main h5, .main h6, 
-    .main li, .main ul, .main div, .main span {
-        color: #2c3e50 !important;
+    /* บังคับทุกข้อความให้มองเห็น */
+    .main * {
+        color: #1a1a1a !important;
     }
     
-    /* Header Styling */
+    /* Header */
     .main-header {
         font-size: 2.5rem;
         font-weight: 800;
@@ -50,28 +49,29 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* Custom Cards - แก้ไขให้มองเห็นข้อความชัดเจน */
+    /* Custom Cards - แก้ไขให้มองเห็นชัดเจน */
     .custom-card {
-        background-color: #ffffff;
+        background-color: #ffffff !important;
         padding: 25px;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         border-left: 5px solid #2a5298;
         margin-bottom: 20px;
-        color: #2c3e50 !important;
-    }
-    
-    /* บังคับสีตัวอักษรใน custom-card */
-    .custom-card h3, .custom-card p, .custom-card li, .custom-card ul {
-        color: #2c3e50 !important;
+        border: 1px solid #e0e0e0;
     }
     
     .custom-card h3 {
         color: #1e3c72 !important;
         margin-top: 0;
+        font-weight: bold;
     }
     
-    /* Metric Styling */
+    .custom-card p, .custom-card li, .custom-card ul, .custom-card b, .custom-card strong {
+        color: #2c3e50 !important;
+        font-size: 1rem;
+    }
+    
+    /* Metrics */
     .metric-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white !important;
@@ -87,42 +87,54 @@ st.markdown("""
     }
     .metric-label { 
         font-size: 0.9rem; 
-        opacity: 0.95;
-        color: white !important;
+        color: rgba(255,255,255,0.95) !important;
     }
 
-    /* Sidebar Styling */
+    /* Sidebar */
     .css-1d391kg { 
         background-color: #ffffff; 
     }
     
-    /* Button Styling */
+    /* Buttons */
     .stButton>button {
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
-        color: #2c3e50;
+        color: #1a1a1a;
     }
     .stButton>button:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
-    /* Text Area */
+    /* Text Area - แก้ไขให้มองเห็นข้อความ */
     .stTextArea textarea {
-        color: #2c3e50 !important;
+        color: #1a1a1a !important;
         background-color: #ffffff !important;
+        border: 2px solid #ddd;
     }
     
     /* Expander */
     .streamlit-expanderHeader {
-        color: #2c3e50 !important;
+        color: #1a1a1a !important;
+        background-color: #f8f9fa !important;
+    }
+    
+    /* Alert Boxes */
+    .stAlert {
+        color: #1a1a1a !important;
+    }
+    
+    /* Code blocks */
+    code {
+        color: #d63384 !important;
+        background-color: #f8f9fa !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. Load Models & Preprocessing
+# Load Models & Preprocessing
 # ==========================================
 @st.cache_resource
 def load_models():
@@ -146,11 +158,11 @@ def preprocess_text(text):
     return ' '.join(tokens)
 
 # ==========================================
-# 3. Sidebar Navigation
+# Sidebar Navigation
 # ==========================================
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/2921/2921226.png", width=80)
-    st.markdown("<h3 style='text-align: center; color: #1e3c72;'>🛡️ Spam Shield AI</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #1e3c72; font-weight: bold;'>🛡️ Spam Shield AI</h3>", unsafe_allow_html=True)
     st.markdown("---")
     
     page = st.radio(
@@ -160,7 +172,7 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("<small style='color: gray;'>Developed with ❤️ for Mini Project 2026</small>", unsafe_allow_html=True)
+    st.markdown("<small style='color: #666;'>Developed with ❤️ for Mini Project 2026</small>", unsafe_allow_html=True)
 
 # ==========================================
 # PAGE 1: หน้าหลัก
@@ -184,9 +196,24 @@ if page == "🏠 หน้าหลัก":
     
     colA, colB = st.columns(2)
     with colA:
-        st.markdown("<div class='custom-card'><h3>🎯 วัตถุประสงค์</h3><p>พัฒนาระบบ AI เพื่อจำแนกข้อความ SMS ว่าเป็น <b>Spam</b> หรือ <b>Ham (ปกติ)</b> โดยอัตโนมัติ ด้วยความแม่นยำสูง ช่วยลดความเสี่ยงจากการถูกหลอกลวงทางข้อความ</p></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='custom-card'>
+            <h3> วัตถุประสงค์</h3>
+            <p>พัฒนาระบบ AI เพื่อจำแนกข้อความ SMS ว่าเป็น <b>Spam</b> หรือ <b>Ham (ปกติ)</b> โดยอัตโนมัติ ด้วยความแม่นยำสูง ช่วยลดความเสี่ยงจากการถูกหลอกลวงทางข้อความ</p>
+        </div>
+        """, unsafe_allow_html=True)
     with colB:
-        st.markdown("<div class='custom-card'><h3>🔧 เทคโนโลยีที่ใช้</h3><ul><li><b>Python 3.x</b> & <b>Scikit-learn</b> (Machine Learning)</li><li><b>NLTK</b> (Natural Language Processing)</li><li><b>Pandas & NumPy</b> (Data Processing)</li><li><b>Streamlit</b> (Web Application)</li></ul></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='custom-card'>
+            <h3>🔧 เทคโนโลยีที่ใช้</h3>
+            <ul>
+                <li><b>Python 3.x</b> & <b>Scikit-learn</b> (Machine Learning)</li>
+                <li><b>NLTK</b> (Natural Language Processing)</li>
+                <li><b>Pandas & NumPy</b> (Data Processing)</li>
+                <li><b>Streamlit</b> (Web Application)</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ==========================================
 # PAGE 2: การเตรียมข้อมูล
@@ -197,19 +224,37 @@ elif page == "📊 การเตรียมข้อมูล":
     
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("<div class='custom-card'><h3>📥 ข้อมูลต้นฉบับ</h3><ul><li><b>Dataset:</b> SMS Spam Collection</li><li><b>Features:</b> v1 (label), v2 (message)</li><li><b>Encoding:</b> ham → 0, spam → 1</li></ul></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='custom-card'>
+            <h3>📥 ข้อมูลต้นฉบับ</h3>
+            <ul>
+                <li><b>Dataset:</b> SMS Spam Collection</li>
+                <li><b>Features:</b> v1 (label), v2 (message)</li>
+                <li><b>Encoding:</b> ham → 0, spam → 1</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.markdown("<div class='custom-card'><h3>⚖️ การแบ่งข้อมูล</h3><ul><li><b>Training:</b> 80% (4,457 samples)</li><li><b>Testing:</b> 20% (1,115 samples)</li><li><b>Method:</b> Stratified Split (Random State: 42)</li></ul></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='custom-card'>
+            <h3>⚖️ การแบ่งข้อมูล</h3>
+            <ul>
+                <li><b>Training:</b> 80% (4,457 samples)</li>
+                <li><b>Testing:</b> 20% (1,115 samples)</li>
+                <li><b>Method:</b> Stratified Split (Random State: 42)</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("<h3>🧹 ขั้นตอน Pipeline การทำความสะอาดข้อมูล</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: #1e3c72; margin-top: 30px;'>🧹 ขั้นตอน Pipeline การทำความสะอาดข้อมูล</h3>", unsafe_allow_html=True)
     st.markdown("""
-    <div style='background: #e9ecef; padding: 20px; border-radius: 10px; font-family: monospace; text-align: center;'>
+    <div style='background: #e9ecef; padding: 20px; border-radius: 10px; font-family: monospace; text-align: center; color: #1a1a1a !important;'>
         Raw Text ➔ <b>Lowercase</b> ➔ <b>Remove Punctuation/Numbers</b> ➔ <b>Remove Stopwords</b> ➔ <b>Lemmatization</b> ➔ <b>TF-IDF (3,000 features)</b>
     </div>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# PAGE 3: วิเคราะห์ข้อมูล (เพิ่มกราฟ)
+# PAGE 3: วิเคราะห์ข้อมูล
 # ==========================================
 elif page == "🔍 วิเคราะห์ข้อมูล":
     st.title("🔍 วิเคราะห์ข้อมูล (Data Analysis)")
@@ -217,15 +262,23 @@ elif page == "🔍 วิเคราะห์ข้อมูล":
     
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("<div class='custom-card'><h3>📏 ความยาวข้อความเฉลี่ย</h3><p>• <b>Ham:</b> ~7.6 คำ<br>• <b>Spam:</b> ~13.9 คำ<br><i>(Spam มักยาวกว่าเพื่อใช้คำโน้มน้าว)</i></p></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='custom-card'>
+            <h3> ความยาวข้อความเฉลี่ย</h3>
+            <p>• <b>Ham:</b> ~7.6 คำ<br>• <b>Spam:</b> ~13.9 คำ<br><i>(Spam มักยาวกว่าเพื่อใช้คำโน้มน้าว)</i></p>
+        </div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.markdown("<div class='custom-card'><h3>🔤 คำที่พบบ่อย (Keywords)</h3><p>• <b>Spam:</b> free, win, prize, cash, urgent, call<br>• <b>Ham:</b> ok, will, can, you, me, the, and</p></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='custom-card'>
+            <h3>🔤 คำที่พบบ่อย (Keywords)</h3>
+            <p>• <b>Spam:</b> free, win, prize, cash, urgent, call<br>• <b>Ham:</b> ok, will, can, you, me, the, and</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # สร้างกราฟจำลองความยาวข้อความ (เพื่อให้ดูโปร)
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📊 การกระจายความยาวข้อความ (Message Length Distribution)")
     
-    # Mock data for visualization
     np.random.seed(42)
     ham_lengths = np.random.normal(7.6, 2, 500)
     spam_lengths = np.random.normal(13.9, 4, 500)
@@ -233,20 +286,26 @@ elif page == "🔍 วิเคราะห์ข้อมูล":
     fig, ax = plt.subplots(figsize=(8, 4))
     sns.histplot(ham_lengths, color='green', label='Ham (ปกติ)', alpha=0.6, bins=30)
     sns.histplot(spam_lengths, color='red', label='Spam (ขยะ)', alpha=0.6, bins=30)
-    ax.set_title('Distribution of Message Length')
-    ax.set_xlabel('Number of Words')
-    ax.set_ylabel('Frequency')
+    ax.set_title('Distribution of Message Length', color='#1a1a1a', fontweight='bold')
+    ax.set_xlabel('Number of Words', color='#1a1a1a')
+    ax.set_ylabel('Frequency', color='#1a1a1a')
+    ax.tick_params(colors='#1a1a1a')
     ax.legend()
     st.pyplot(fig)
 
 # ==========================================
-# PAGE 4: ประสิทธิภาพโมเดล (เพิ่ม Confusion Matrix)
+# PAGE 4: ประสิทธิภาพโมเดล
 # ==========================================
 elif page == "📈 ประสิทธิภาพโมเดล":
-    st.title("📈 ประสิทธิภาพโมเดล (Model Performance)")
+    st.title(" ประสิทธิภาพโมเดล (Model Performance)")
     st.markdown("---")
     
-    st.markdown("<div class='custom-card'><h3>🤖 โมเดลที่เลือก: Logistic Regression</h3><p>✅ ความแม่นยำสูงสุด (98.2%) &nbsp;|&nbsp; ✅ ประมวลผลเร็ว &nbsp;|&nbsp; ✅ ไม่เกิด Overfitting &nbsp;|&nbsp; ✅ รองรับ Probability Prediction</p></div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div class='custom-card'>
+        <h3>🤖 โมเดลที่เลือก: Logistic Regression</h3>
+        <p>✅ ความแม่นยำสูงสุด (98.2%) &nbsp;|&nbsp; ✅ ประมวลผลเร็ว &nbsp;|&nbsp; ✅ ไม่เกิด Overfitting &nbsp;|&nbsp; ✅ รองรับ Probability Prediction</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("🎯 Accuracy", "98.2%")
@@ -255,21 +314,20 @@ elif page == "📈 ประสิทธิภาพโมเดล":
     col4.metric("⚖️ F1-Score", "97.1%")
 
     st.markdown("<br>", unsafe_allow_html=True)
-    st.subheader("📊 Confusion Matrix")
+    st.subheader(" Confusion Matrix")
     
-    # สร้าง Confusion Matrix จากค่าที่ระบุไว้
-    cm_data = np.array([[948, 17],   # Actual Ham: 948 TN, 17 FP
-                        [4, 145]])    # Actual Spam: 4 FN, 145 TP
+    cm_data = np.array([[948, 17], [4, 145]])
     
     fig, ax = plt.subplots(figsize=(6, 5))
     sns.heatmap(cm_data, annot=True, fmt='d', cmap='Blues', 
                 xticklabels=['Predicted Ham', 'Predicted Spam'], 
                 yticklabels=['Actual Ham', 'Actual Spam'], 
-                ax=ax, cbar=False, annot_kws={"size": 14})
-    ax.set_title('Confusion Matrix - Logistic Regression', fontsize=14, fontweight='bold')
+                ax=ax, cbar=False, annot_kws={"size": 14, "color": "#1a1a1a"})
+    ax.set_title('Confusion Matrix - Logistic Regression', fontsize=14, fontweight='bold', color='#1a1a1a')
+    ax.tick_params(colors='#1a1a1a')
     st.pyplot(fig)
     
-    st.info("💡 **คำอธิบาย:** โมเดลสามารถแยก Ham ได้ถูกต้อง 948 ข้อความ และจับ Spam ได้ถูกต้อง 145 ข้อความ โดยมี False Positive (แจ้งผิดว่าเป็น Spam) เพียง 17 ข้อความเท่านั้น ซึ่งถือว่ายอดเยี่ยม")
+    st.info("💡 **คำอธิบาย:** โมเดลสามารถแยก Ham ได้ถูกต้อง 948 ข้อความ และจับ Spam ได้ถูกต้อง 145 ข้อความ โดยมี False Positive เพียง 17 ข้อความ")
 
 # ==========================================
 # PAGE 5: เช็ค SMS
@@ -290,10 +348,10 @@ elif page == "📝 เช็ค SMS":
             "✏️ พิมพ์ข้อความ SMS ที่นี่:",
             height=120,
             placeholder="ตัวอย่าง: ยินดีด้วย! คุณได้รับรางวัลเงินสด 10,000 บาท คลิกที่นี่...",
-            label_visibility="collapsed"
+            label_visibility="visible"
         )
         
-        st.markdown("<h4>💡 หรือเลือกข้อความตัวอย่าง:</h4>", unsafe_allow_html=True())
+        st.markdown("<h4 style='color: #1e3c72; margin-top: 20px;'>💡 หรือเลือกข้อความตัวอย่าง:</h4>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         
         with col1:
@@ -314,7 +372,6 @@ elif page == "📝 เช็ค SMS":
             if st.button("🙏 ขอบคุณสำหรับความช่วยเหลือ", use_container_width=True):
                 st.session_state['test_text'] = "Thanks so much for your help today. See you next week!"
 
-        # Logic การดึงค่าจาก session state
         if 'test_text' in st.session_state and not user_input:
             current_text = st.session_state['test_text']
         else:
@@ -334,37 +391,36 @@ elif page == "📝 เช็ค SMS":
                     st.markdown("---")
                     st.subheader("📊 ผลลัพธ์การวิเคราะห์")
                     
-                    if prediction == 1:  # Spam
+                    if prediction == 1:
                         st.markdown(f"""
-                        <div style='background-color: #ffe6e6; padding: 20px; border-radius: 10px; border-left: 6px solid #ff4d4d;'>
+                        <div style='background-color: #ffe6e6; padding: 20px; border-radius: 10px; border-left: 6px solid #ff4d4d; color: #cc0000;'>
                             <h3 style='color: #cc0000; margin-top: 0;'>🚨 ตรวจพบ: SPAM (ข้อความขยะ/มิจฉาชีพ)</h3>
-                            <p><b>ระดับความมั่นใจ:</b> <span style='font-size: 1.2em; color: #cc0000;'>{probability[1]*100:.2f}%</span></p>
+                            <p style='color: #cc0000;'><b>ระดับความมั่นใจ:</b> <span style='font-size: 1.2em;'>{probability[1]*100:.2f}%</span></p>
                             <hr style='border-color: #ff9999;'>
-                            <p>⚠️ <b>คำเตือน:</b> ข้อความนี้มีแนวโน้มสูงที่จะเป็นสแปม</p>
-                            <ul>
+                            <p style='color: #cc0000;'>⚠️ <b>คำเตือน:</b> ข้อความนี้มีแนวโน้มสูงที่จะเป็นสแปม</p>
+                            <ul style='color: #cc0000;'>
                                 <li>ห้ามคลิกลิงก์ใดๆ ในข้อความเด็ดขาด</li>
                                 <li>ห้ามให้ข้อมูลส่วนตัวหรือรหัสผ่าน</li>
                                 <li>แนะนำให้บล็อกและลบข้อความนี้ทิ้งทันที</li>
                             </ul>
                         </div>
                         """, unsafe_allow_html=True)
-                    else:  # Ham
+                    else:
                         st.markdown(f"""
-                        <div style='background-color: #e6ffe6; padding: 20px; border-radius: 10px; border-left: 6px solid #28a745;'>
+                        <div style='background-color: #e6ffe6; padding: 20px; border-radius: 10px; border-left: 6px solid #28a745; color: #006600;'>
                             <h3 style='color: #006600; margin-top: 0;'>✅ ตรวจพบ: HAM (ข้อความปกติ/ปลอดภัย)</h3>
-                            <p><b>ระดับความมั่นใจ:</b> <span style='font-size: 1.2em; color: #006600;'>{probability[0]*100:.2f}%</span></p>
+                            <p style='color: #006600;'><b>ระดับความมั่นใจ:</b> <span style='font-size: 1.2em;'>{probability[0]*100:.2f}%</span></p>
                             <hr style='border-color: #99ff99;'>
-                            <p>✔️ ข้อความนี้ดูปลอดภัย เป็นข้อความสนทนาทั่วไป</p>
+                            <p style='color: #006600;'>✔️ ข้อความนี้ดูปลอดภัย เป็นข้อความสนทนาทั่วไป</p>
                         </div>
                         """, unsafe_allow_html=True)
                     
-                    # Expander for details
                     with st.expander("🔬 ดูรายละเอียดการประมวลผลของ AI"):
                         st.markdown(f"**ข้อความต้นฉบับ:** `{current_text}`")
                         st.markdown(f"**หลังทำความสะอาด:** `{clean_text}`")
                         
                         col_a, col_b = st.columns(2)
-                        col_a.metric("📏 ความยาวต้นฉบับ", f"{len(current_text)} ตัวอักษร")
+                        col_a.metric(" ความยาวต้นฉบับ", f"{len(current_text)} ตัวอักษร")
                         col_b.metric("🧹 ความยาวหลังทำความสะอาด", f"{len(clean_text)} ตัวอักษร")
                         
                         st.markdown("**📈 สัดส่วนความน่าจะเป็น:**")
@@ -379,15 +435,15 @@ elif page == "📝 เช็ค SMS":
 # ==========================================
 # PAGE 6: ผู้พัฒนา
 # ==========================================
-elif page == "👨‍💻 ผู้พัฒนา":
-    st.title("👨‍💻 เกี่ยวกับผู้พัฒนา (Developer)")
+elif page == "👨💻 ผู้พัฒนา":
+    st.title("‍💻 เกี่ยวกับผู้พัฒนา (Developer)")
     st.markdown("---")
     
     col1, col2 = st.columns([1, 2])
     with col1:
         st.image("https://cdn-icons-png.flaticon.com/512/3135/3135715.png", width=150)
-        st.markdown("<h3 style='text-align: center;'>[ใส่ชื่อ-นามสกุล]</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: gray;'>Data Science Student</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: #1e3c72; font-weight: bold;'>[ใส่ชื่อ-นามสกุล]</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #666;'>Data Science Student</p>", unsafe_allow_html=True)
     
     with col2:
         st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
@@ -397,21 +453,21 @@ elif page == "👨‍💻 ผู้พัฒนา":
         st.write("- **GitHub:** [github.com/yourusername]")
         st.markdown("</div>", unsafe_allow_html=True)
         
-        st.markdown("<h4>🛠️ ทักษะและเทคโนโลยี</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='color: #1e3c72; margin-top: 20px;'>🛠️ ทักษะและเทคโนโลยี</h4>", unsafe_allow_html=True)
         st.markdown("""
         <div style='display: flex; flex-wrap: wrap; gap: 10px;'>
-            <span style='background: #e3f2fd; color: #1565c0; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Python</span>
-            <span style='background: #e3f2fd; color: #1565c0; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Machine Learning</span>
-            <span style='background: #e3f2fd; color: #1565c0; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>NLP (NLTK)</span>
-            <span style='background: #e3f2fd; color: #1565c0; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Scikit-Learn</span>
-            <span style='background: #e3f2fd; color: #1565c0; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Streamlit</span>
+            <span style='background: #e3f2fd; color: #1565c0 !important; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Python</span>
+            <span style='background: #e3f2fd; color: #1565c0 !important; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Machine Learning</span>
+            <span style='background: #e3f2fd; color: #1565c0 !important; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>NLP (NLTK)</span>
+            <span style='background: #e3f2fd; color: #1565c0 !important; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Scikit-Learn</span>
+            <span style='background: #e3f2fd; color: #1565c0 !important; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>Streamlit</span>
         </div>
         """, unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style='text-align: center; color: #888; padding: 20px;'>
+<div style='text-align: center; color: #666; padding: 20px;'>
     <p>📱 <b>SMS Spam Classification Project</b> | Mini Project 2026</p>
     <p>Developed with ❤️ using Python, Scikit-Learn, and Streamlit</p>
 </div>
