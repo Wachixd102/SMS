@@ -754,56 +754,7 @@ if page == "📈 ประสิทธิภาพโมเดล":
     """, unsafe_allow_html=True)
 
 
-# ==========================================
-# หน้า 6: ผู้พัฒนา (Developer)
-# ==========================================
-if page == "👨‍💻 ผู้พัฒนา":
-    st.markdown("<h1 class='main-title'>👨‍💻 เกี่ยวกับผู้พัฒนา</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle'>ข้อมูลผู้จัดทำโปรเจกต์ SMS Spam Classification System</p>", unsafe_allow_html=True)
-    
-    st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
-    
-    col1, col2 = st.columns([1, 2])
-    
-    with col1:
-        st.markdown("""
-        <div style='text-align: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.15); border-top: 5px solid #2c5282;'>
-            <img src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png' style='width: 140px; height: 140px; border-radius: 50%; margin-bottom: 20px; background: #ebf4ff; padding: 10px;'>
-            <h3 style='color: #1e3a5f !important; font-size: 1.5rem; font-weight: 700; margin-bottom: 5px;'>นักศึกษาผู้จัดทำ</h3>
-            <p style='color: #4a5568 !important; font-size: 1rem; font-weight: 600;'>Machine Learning Developer</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class='info-card'>
-            <h3>📌 ข้อมูลโปรเจกต์เพิ่มเติม</h3>
-            <p><b>ชื่อโปรเจกต์:</b> SMS Spam Classification System (Spam Shield AI)</p>
-            <p><b>รายวิชา:</b> Machine Learning Course (Mini Project 2026)</p>
-            <p><b>ขอบเขตงาน:</b> 
-                <ul style='padding-left: 20px; color: #2d3748;'>
-                    <li>การสำรวจและทำความสะอาดข้อมูล (Data Preprocessing & Cleaning)</li>
-                    <li>กระบวนการสกัดคุณลักษณะด้วยเทคนิค TF-IDF Vectorization</li>
-                    <li>ฝึกสอนและเปรียบเทียบประสิทธิภาพโมเดล Machine Learning หลายรูปแบบ</li>
-                    <li>พัฒนา Web Application ด้วย Streamlit Framework</li>
-                </ul>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Footer Banner
-    st.markdown("""
-    <div style='background: white; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.1); border: 1px solid #e2e8f0;'>
-        <p style='color: #1e3a5f !important; font-size: 1.1rem; font-weight: 700; margin: 0;'>
-            📱 SMS Spam Classification Project
-        </p>
-        <p style='color: #718096 !important; font-size: 0.95rem; margin-top: 5px;'>
-            Mini Project 2026 | Developed with ❤️ using Python, Scikit-Learn, and Streamlit
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+
 
 
 import streamlit as st
@@ -907,6 +858,58 @@ if page == "📝 เช็ค SMS":
                         <div class='stat-label'>โอกาสที่เป็น SPAM (ขยะ)</div>
                     </div>
                     """, unsafe_allow_html=True)
+
+
+                    # ==========================================
+# หน้า 6: ผู้พัฒนา (Developer)
+# ==========================================
+if page == "👨‍💻 ผู้พัฒนา":
+    st.markdown("<h1 class='main-title'>👨‍💻 เกี่ยวกับผู้พัฒนา</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>ข้อมูลผู้จัดทำโปรเจกต์ SMS Spam Classification System</p>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='custom-divider'></div>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.markdown("""
+        <div style='text-align: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.15); border-top: 5px solid #2c5282;'>
+            <img src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png' style='width: 140px; height: 140px; border-radius: 50%; margin-bottom: 20px; background: #ebf4ff; padding: 10px;'>
+            <h3 style='color: #1e3a5f !important; font-size: 1.5rem; font-weight: 700; margin-bottom: 5px;'>นักศึกษาผู้จัดทำ</h3>
+            <p style='color: #4a5568 !important; font-size: 1rem; font-weight: 600;'>Machine Learning Developer</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class='info-card'>
+            <h3>📌 ข้อมูลโปรเจกต์เพิ่มเติม</h3>
+            <p><b>ชื่อโปรเจกต์:</b> SMS Spam Classification System (Spam Shield AI)</p>
+            <p><b>รายวิชา:</b> Machine Learning Course (Mini Project 2026)</p>
+            <p><b>ขอบเขตงาน:</b> 
+                <ul style='padding-left: 20px; color: #2d3748;'>
+                    <li>การสำรวจและทำความสะอาดข้อมูล (Data Preprocessing & Cleaning)</li>
+                    <li>กระบวนการสกัดคุณลักษณะด้วยเทคนิค TF-IDF Vectorization</li>
+                    <li>ฝึกสอนและเปรียบเทียบประสิทธิภาพโมเดล Machine Learning หลายรูปแบบ</li>
+                    <li>พัฒนา Web Application ด้วย Streamlit Framework</li>
+                </ul>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Footer Banner
+    st.markdown("""
+    <div style='background: white; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(30, 58, 95, 0.1); border: 1px solid #e2e8f0;'>
+        <p style='color: #1e3a5f !important; font-size: 1.1rem; font-weight: 700; margin: 0;'>
+            📱 SMS Spam Classification Project
+        </p>
+        <p style='color: #718096 !important; font-size: 0.95rem; margin-top: 5px;'>
+            Mini Project 2026 | Developed with ❤️ using Python, Scikit-Learn, and Streamlit
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ==========================================
