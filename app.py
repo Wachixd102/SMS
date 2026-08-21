@@ -1,10 +1,14 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import joblib
 import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, classification_report
 
 # ดาวน์โหลด NLTK data
 nltk.download('stopwords', quiet=True)
@@ -19,7 +23,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# โหลดโมเดลและ Vectorizer (ใช้ชื่อไฟล์ใหม่)
+# โหลดโมเดลและ Vectorizer
 @st.cache_resource
 def load_models():
     try:
@@ -27,7 +31,6 @@ def load_models():
         tfidf = joblib.load('sms_tfidf.pkl')
         return model, tfidf, True
     except Exception as e:
-        st.error(f"️ ไม่สามารถโหลดโมเดลได้: {e}")
         return None, None, False
 
 model, tfidf, model_loaded = load_models()
@@ -43,37 +46,27 @@ def preprocess_text(text):
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
     return ' '.join(tokens)
 
-# สร้าง Sidebar สำหรับ Navigation
+# Sidebar Navigation
 st.sidebar.title("🧭 Navigation")
+st.sidebar.markdown("เลือกหน้า:")
+
 page = st.sidebar.radio(
-    "เลือกหน้า:",
-    ["🏠 หน้าหลัก", "📊 การเตรียมข้อมูล", "🔍 วิเคราะห์ข้อมูล", "📈 ประสิทธิภาพโมเดล", " เช็ค SMS", "👨‍ ผู้พัฒนา"]
+    "",
+    ["🏠 หน้าหลัก", "📊 การเตรียมข้อมูล", " วิเคราะห์ข้อมูล", "📈 ประสิทธิภาพโมเดล", "📝 เช็ค SMS", "👨‍💻 ผู้พัฒนา"]
 )
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("""
-###  เกี่ยวกับโปรเจกต์
-โปรเจกต์นี้ใช้ Machine Learning เพื่อจำแนกข้อความ SMS ว่าเป็น **Spam** หรือ **Ham (ปกติ)**
-
-**Dataset:** SMS Spam Collection  
-**จำนวนข้อมูล:** 5,572 ข้อความ  
-**โมเดล:** Logistic Regression  
-**ความแม่นยำ:** 98.2%
-""")
 
 # ==========================================
 # หน้า 1: หน้าหลัก
 # ==========================================
 if page == "🏠 หน้าหลัก":
-    st.title("📱 SMS Spam Classification")
+    st.title("📱 SMS Spam Classification Project")
     st.markdown("---")
     
     st.subheader("🎯 วัตถุประสงค์")
     st.write("""
-    พัฒนาระบบ Machine Learning เพื่อจำแนกข้อความ SMS ว่าเป็น Spam หรือข้อความปกติ (Ham) โดยอัตโนมัติ
+    พัฒนาระบบ Machine Learning เพื่อจำแนกข้อความ SMS ว่าเป็น **Spam** หรือ **Ham (ปกติ)** โดยอัตโนมัติ
     """)
     
-    st.subheader(" สถิติ Dataset")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("จำนวนข้อความ", "5,572")
     col2.metric("Ham (ปกติ)", "4,825 (86.6%)")
@@ -82,11 +75,12 @@ if page == "🏠 หน้าหลัก":
     
     st.subheader("🔧 เทคโนโลยีที่ใช้")
     st.write("""
-    - Python 3.x
-    - Scikit-learn
-    - Pandas & NumPy
-    - NLTK (Natural Language Toolkit)
-    - Streamlit
+    - **Python 3.x**
+    - **Scikit-learn** - Machine Learning
+    - **Pandas & NumPy** - Data Processing
+    - **NLTK** - Natural Language Processing
+    - **Matplotlib & Seaborn** - Visualization
+    - **Streamlit** - Web Application
     """)
 
 # ==========================================
@@ -96,36 +90,40 @@ elif page == "📊 การเตรียมข้อมูล":
     st.title("📊 การเตรียมข้อมูล (Data Preprocessing)")
     st.markdown("---")
     
-    st.subheader(" การนำเข้าข้อมูล")
+    st.subheader("📥 การนำเข้าข้อมูล")
     st.write("""
-    - ไฟล์: `spam.csv`
-    - คอลัมน์: `v1` (label: ham/spam), `v2` (message)
-    - แปลง label: ham → 0, spam → 1
+    - **ไฟล์:** spam.csv
+    - **คอลัมน์:** v1 (label: ham/spam), v2 (message)
+    - **การแปลง label:** ham → 0, spam → 1
     """)
     
-    st.subheader(" ขั้นตอนการทำความสะอาดข้อมูล")
+    st.subheader("🧹 ขั้นตอนการทำความสะอาดข้อมูล")
     st.write("""
-    1. **Lowercase:** แปลงข้อความเป็นตัวพิมพ์เล็ก
-    2. **Remove Punctuation & Numbers:** ลบสัญลักษณ์พิเศษและตัวเลข
-    3. **Remove Stopwords:** ลบคำที่ไม่มีความหมาย (the, is, in, etc.)
-    4. **Lemmatization:** ตัดคำให้เหลือรากศัพท์
-    5. **TF-IDF Vectorization:** แปลงข้อความเป็นตัวเลข (3,000 features)
+    1. **Lowercase** - แปลงข้อความเป็นตัวพิมพ์เล็ก
+    2. **Remove Punctuation & Numbers** - ลบสัญลักษณ์พิเศษและตัวเลข
+    3. **Remove Stopwords** - ลบคำที่ไม่มีความหมาย (the, is, in, etc.)
+    4. **Lemmatization** - ตัดคำให้เหลือรากศัพท์
+    5. **TF-IDF Vectorization** - แปลงข้อความเป็นตัวเลข (3,000 features)
     """)
     
     st.subheader("⚖️ การแบ่งข้อมูล")
     st.write("""
-    - Training Set: 80% (4,457 samples)
-    - Testing Set: 20% (1,115 samples)
-    - Stratified Split
-    - Random State: 42
+    - **Training Set:** 80% (4,457 samples)
+    - **Testing Set:** 20% (1,115 samples)
+    - **Stratified Split** - รักษาอัตราส่วน Ham/Spam
+    - **Random State:** 42
     """)
 
 # ==========================================
 # หน้า 3: วิเคราะห์ข้อมูล
 # ==========================================
 elif page == "🔍 วิเคราะห์ข้อมูล":
-    st.title("🔍 วิเคราะห์ข้อมูล (Data Analysis)")
+    st.title(" วิเคราะห์ข้อมูล (Data Analysis)")
     st.markdown("---")
+    
+    col1, col2 = st.columns(2)
+    col1.metric("ความยาวเฉลี่ย Ham", "7.6 คำ")
+    col2.metric("ความยาวเฉลี่ย Spam", "13.9 คำ")
     
     st.subheader("📏 ความยาวข้อความ")
     st.write("""
@@ -138,16 +136,6 @@ elif page == "🔍 วิเคราะห์ข้อมูล":
     col1, col2 = st.columns(2)
     col1.write("**Spam:** free, call, text, win, prize, cash, urgent, now")
     col2.write("**Ham:** ok, will, can, you, me, to, the, and")
-    
-    st.subheader(" ตารางเปรียบเทียบ")
-    st.write("""
-    | คุณลักษณะ | Ham (ปกติ) | Spam |
-    |---|---|---|
-    | จำนวนข้อความ | 4,825 (86.6%) | 747 (13.4%) |
-    | ความยาวเฉลี่ย | 7.6 คำ | 13.9 คำ |
-    | คำศัพท์เฉพาะ | คำทั่วไปในชีวิตประจำวัน | free, win, call, text, prize |
-    | รูปแบบ | ภาษาพูดทั่วไป | ใช้ตัวพิมพ์ใหญ่, สัญลักษณ์ |
-    """)
 
 # ==========================================
 # หน้า 4: ประสิทธิภาพโมเดล
@@ -165,45 +153,36 @@ elif page == "📈 ประสิทธิภาพโมเดล":
     - ✅ รองรับ probability prediction
     """)
     
-    st.subheader(" Metrics")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Accuracy", "98.2%")
     col2.metric("Precision", "97.8%")
     col3.metric("Recall", "96.5%")
     col4.metric("F1-Score", "97.1%")
-    
-    st.subheader(" Confusion Matrix")
-    st.write("""
-    | | Predicted Ham | Predicted Spam |
-    |---|---|---|
-    | **Actual Ham** | 948 (TN) | 17 (FP) |
-    | **Actual Spam** | 4 (FN) | 145 (TP) |
-    """)
 
 # ==========================================
-# หน้า 5: เช็ค SMS (หน้าทดสอบโมเดล)
+# หน้า 5: เช็ค SMS (สำคัญ - แก้ไขแล้ว)
 # ==========================================
-elif page == "🔍 เช็ค SMS":
-    st.title("🔍 ตรวจสอบข้อความ SMS")
+elif page == "📝 เช็ค SMS":
+    st.title("📝 ตรวจสอบข้อความ SMS")
     st.markdown("---")
     
-    # ตรวจสอบว่าโหลดโมเดลสำเร็จไหม
     if not model_loaded:
         st.error("⚠️ ไม่พบไฟล์โมเดล! กรุณาตรวจสอบว่าไฟล์ `sms_spam_model.pkl` และ `sms_tfidf.pkl` อยู่ในโฟลเดอร์เดียวกัน")
-        st.info(" วิธีแก้: รันโค้ด train_new_model.py เพื่อสร้างไฟล์โมเดลใหม่ แล้วอัปโหลดขึ้น GitHub")
+        st.info("💡 วิธีแก้: รันโค้ด train_new_model.py เพื่อสร้างไฟล์โมเดลใหม่ แล้วอัปโหลดขึ้น GitHub")
     else:
-        # กล่องข้อมูลแนะนำ
+        st.success("✅ โมเดลพร้อมใช้งาน!")
+        
         st.info("""
-        **📖 วิธีใช้งาน:**
+        ** วิธีใช้งาน:**
         1. พิมพ์หรือวางข้อความ SMS ที่ต้องการตรวจสอบในช่องด้านล่าง
-        2. กดปุ่ม **" ตรวจสอบข้อความ"**
+        2. กดปุ่ม **"ตรวจสอบข้อความ"**
         3. ระบบจะแสดงผลว่าเป็น **Spam (ขยะ)** หรือ **Ham (ปกติ)** พร้อมระดับความมั่นใจ
         """)
         
         st.markdown("---")
         
         # ส่วน Input
-        st.subheader("️ กรอกข้อความที่ต้องการตรวจสอบ")
+        st.subheader("✏️ กรอกข้อความที่ต้องการตรวจสอบ")
         user_input = st.text_area(
             "พิมพ์ข้อความ SMS ที่นี่:",
             height=120,
@@ -211,38 +190,38 @@ elif page == "🔍 เช็ค SMS":
             help="กรอกข้อความ SMS ที่ต้องการตรวจสอบว่าเป็นสแปมหรือไม่"
         )
         
-        # ตัวอย่างข้อความให้ทดสอบ
+        # ตัวอย่างข้อความ
         st.markdown("###  ตัวอย่างข้อความสำหรับทดสอบ")
         st.caption("คลิกที่ปุ่มด้านล่างเพื่อเติมข้อความตัวอย่างอัตโนมัติ")
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("**🔴 ตัวอย่างข้อความ Spam (ขยะ):**")
+            st.markdown("**🔴 ตัวอย่าง Spam (ขยะ):**")
             spam_examples = [
-                "🎉 ยินดีด้วย! คุณได้รับรางวัลเงินสด 10,000 บาท คลิกที่นี่เพื่อรับรางวัล: http://bit.ly/xxx",
-                "URGENT! บัญชีธนาคารของคุณถูกระงับ กรุณาอัปเดตข้อมูลทันทีที่ http://fake-bank.com",
-                "💰 โอกาสพิเศษ! รับเงินกู้ดอกเบี้ย 0% ไม่ต้องมีหลักประกัน โทร 090-xxx-xxxx"
+                "🎉 ยินดีด้วย! คุณได้รับรางวัลเงินสด 10,000 บาท คลิกที่นี่เพื่อรับรางวัล",
+                "URGENT! บัญชีธนาคารของคุณถูกระงับ กรุณาอัปเดตข้อมูลทันที",
+                "💰 โอกาสพิเศษ! รับเงินกู้ดอกเบี้ย 0% ไม่ต้องมีหลักประกัน"
             ]
             for i, ex in enumerate(spam_examples):
                 if st.button(f"🔴 Spam ตัวอย่างที่ {i+1}", key=f"spam_{i}", use_container_width=True):
                     st.session_state['test_text'] = ex
         
         with col2:
-            st.markdown("**🟢 ตัวอย่างข้อความ Ham (ปกติ):**")
+            st.markdown("**🟢 ตัวอย่าง Ham (ปกติ):**")
             ham_examples = [
                 "สวัสดีครับ เย็นนี้ว่างไหมครับ ไปทานข้าวด้วยกันนะครับ",
                 "ประชุมวันพรุ่งนี้เวลา 10:00 น. อย่าลืมนำเอกสารมาด้วยนะครับ",
                 "ขอบคุณมากครับสำหรับความช่วยเหลือ ไว้เจอกันใหม่นะครับ"
             ]
             for i, ex in enumerate(ham_examples):
-                if st.button(f" Ham ตัวอย่างที่ {i+1}", key=f"ham_{i}", use_container_width=True):
+                if st.button(f"🟢 Ham ตัวอย่างที่ {i+1}", key=f"ham_{i}", use_container_width=True):
                     st.session_state['test_text'] = ex
         
         st.markdown("---")
         
         # ปุ่มทำนายผล
-        predict_button = st.button("🔍 ตรวจสอบข้อความ", use_container_width=True, type="primary")
+        predict_button = st.button(" ตรวจสอบข้อความ", use_container_width=True, type="primary")
         
         if predict_button or 'test_text' in st.session_state:
             text_to_check = user_input if user_input else st.session_state.get('test_text', '')
@@ -270,7 +249,7 @@ elif page == "🔍 เช็ค SMS":
                             
                             **ระดับความมั่นใจ:** {probability[1]*100:.2f}%
                             
-                            ⚠️ **คำเตือน:** ข้อความนี้มีแนวโน้มสูงที่จะเป็นสแปม 
+                            ️ **คำเตือน:** ข้อความนี้มีแนวโน้มสูงที่จะเป็นสแปม 
                             - ไม่ควรคลิกลิงก์ใดๆ ในข้อความ
                             - ไม่ควรให้ข้อมูลส่วนตัว
                             - แนะนำให้ลบข้อความนี้ทิ้ง
@@ -284,15 +263,15 @@ elif page == "🔍 เช็ค SMS":
                             ✔️ ข้อความนี้ดูปลอดภัย เป็นข้อความปกติ
                             """)
                         
-                        # แสดงข้อมูลเพิ่มเติมใน Expander
+                        # รายละเอียดเพิ่มเติม
                         with st.expander("🔬 ดูรายละเอียดการประมวลผล (ไม่บังคับ)"):
-                            st.markdown("** ข้อความต้นฉบับ:**")
+                            st.markdown("**ข้อความต้นฉบับ:**")
                             st.code(text_to_check, language='text')
                             
                             st.markdown("**🧹 ข้อความหลังทำความสะอาด:**")
                             st.code(clean_text, language='text')
                             
-                            st.markdown("** ความยาวข้อความ:**")
+                            st.markdown("**ความยาวข้อความ:**")
                             col_a, col_b = st.columns(2)
                             col_a.metric("ต้นฉบับ", f"{len(text_to_check)} ตัวอักษร")
                             col_b.metric("หลังทำความสะอาด", f"{len(clean_text)} ตัวอักษร")
@@ -300,7 +279,7 @@ elif page == "🔍 เช็ค SMS":
                             st.markdown("**📈 ระดับความน่าจะเป็น:**")
                             col_c, col_d = st.columns(2)
                             col_c.metric("🔴 Spam", f"{probability[1]*100:.2f}%")
-                            col_d.metric("🟢 Ham", f"{probability[0]*100:.2f}%")
+                            col_d.metric(" Ham", f"{probability[0]*100:.2f}%")
                             
                     except Exception as e:
                         st.error(f"❌ เกิดข้อผิดพลาด: {e}")
@@ -308,16 +287,16 @@ elif page == "🔍 เช็ค SMS":
                 st.warning("⚠️ กรุณากรอกข้อความก่อนทำการตรวจสอบ")
 
 # ==========================================
-# หน้า 6: ผู้พัฒนา
+# หน้า 6: ผู้พัฒนา (สำคัญ - แก้ไขแล้ว)
 # ==========================================
-elif page == "👨💻 ผู้พัฒนา":
-    st.title("‍💻 ผู้พัฒนา (Developer)")
+elif page == "👨‍💻 ผู้พัฒนา":
+    st.title("👨‍ ผู้พัฒนา (Developer)")
     st.markdown("---")
     
-    st.subheader("ข้อมูลผู้พัฒนา")
+    st.subheader(" ข้อมูลผู้พัฒนา")
     st.write("""
-    - **ชื่อ:** [ชื่อ-นามสกุล ของคุณ]
-    - **รหัสนักศึกษา:** [รหัส]
+    - **ชื่อ:** [ใส่ชื่อ-นามสกุล ของคุณ]
+    - **รหัสนักศึกษา:** [ใส่รหัส]
     - **อีเมล:** your.email@example.com
     - **โครงการ:** SMS Spam Classification System
     - **เทคโนโลยี:** Python, Machine Learning, NLP
@@ -332,7 +311,21 @@ elif page == "👨💻 ผู้พัฒนา":
     - Machine Learning
     - Natural Language Processing
     - Data Analysis & Visualization
+    - Deep Learning
     """)
+    
+    st.subheader("🛠️ เทคโนโลยีที่ใช้")
+    st.write("""
+    - Python 3.x
+    - Scikit-learn
+    - Pandas & NumPy
+    - Matplotlib & Seaborn
+    - NLTK / SpaCy
+    - Streamlit
+    """)
+    
+    st.markdown("---")
+    st.info("**📞 ติดต่อ:** สนใจร่วมงานหรือมีคำถามเกี่ยวกับโครงการ สามารถติดต่อได้ทางอีเมลหรือ LinkedIn")
 
 # Footer
 st.markdown("---")
