@@ -875,10 +875,10 @@ if "ผู้พัฒนา" in page:
     
     col_input1, col_input2 = st.columns(2)
     with col_input1:
-        dev_name = st.text_input("ชื่อ-นามสกุล:", value="นายผู้จัดทำ โปรเจกต์")
-        dev_id = st.text_input("รหัสนักศึกษา:", value="6XXXXXXXX-X")
+        dev_name = st.text_input("ชื่อ-นามสกุล:", value="วชิรวิทย์ พรสวาท")
+        dev_id = st.text_input("รหัสนักศึกษา:", value="0998887765")
     with col_input2:
-        dev_dept = st.text_input("สาขาวิชา / คณะ:", value="สาขาวิชาวิทยาการคอมพิวเตอร์ / เทคโนโลยีสารสนเทศ")
+        dev_dept = st.text_input("สาขาวิชา / คณะ:", value="สาขาวิชาวิทยาการคอมพิวเตอร์ / วิทยาศาสตร์เเละเทคโนโลยี")
         dev_role = st.text_input("บทบาทหน้าที่:", value="Developer / Machine Learning Engineer")
 
     st.markdown("<br>", unsafe_allow_html=True)
