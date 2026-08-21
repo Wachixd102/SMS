@@ -27,8 +27,17 @@ st.set_page_config(
 # Inject Custom CSS
 st.markdown("""
 <style>
-    /* Main Background & Font */
-    .main { background-color: #f8f9fa; }
+    /* Main Background & Font - แก้ไขสีตัวอักษรให้ชัดเจน */
+    .main { 
+        background-color: #f8f9fa; 
+        color: #2c3e50;
+    }
+    
+    /* บังคับให้ทุกตัวอักษรใน main มีสีเข้ม */
+    .main p, .main h1, .main h2, .main h3, .main h4, .main h5, .main h6, 
+    .main li, .main ul, .main div, .main span {
+        color: #2c3e50 !important;
+    }
     
     /* Header Styling */
     .main-header {
@@ -41,40 +50,73 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* Custom Cards */
+    /* Custom Cards - แก้ไขให้มองเห็นข้อความชัดเจน */
     .custom-card {
         background-color: #ffffff;
-        padding: 20px;
+        padding: 25px;
         border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         border-left: 5px solid #2a5298;
         margin-bottom: 20px;
+        color: #2c3e50 !important;
+    }
+    
+    /* บังคับสีตัวอักษรใน custom-card */
+    .custom-card h3, .custom-card p, .custom-card li, .custom-card ul {
+        color: #2c3e50 !important;
+    }
+    
+    .custom-card h3 {
+        color: #1e3c72 !important;
+        margin-top: 0;
     }
     
     /* Metric Styling */
     .metric-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        color: white !important;
         padding: 20px;
         border-radius: 12px;
         text-align: center;
         box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
     }
-    .metric-value { font-size: 2rem; font-weight: bold; }
-    .metric-label { font-size: 0.9rem; opacity: 0.9; }
+    .metric-value { 
+        font-size: 2rem; 
+        font-weight: bold;
+        color: white !important;
+    }
+    .metric-label { 
+        font-size: 0.9rem; 
+        opacity: 0.95;
+        color: white !important;
+    }
 
     /* Sidebar Styling */
-    .css-1d391kg { background-color: #ffffff; }
+    .css-1d391kg { 
+        background-color: #ffffff; 
+    }
     
     /* Button Styling */
     .stButton>button {
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
+        color: #2c3e50;
     }
     .stButton>button:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Text Area */
+    .stTextArea textarea {
+        color: #2c3e50 !important;
+        background-color: #ffffff !important;
+    }
+    
+    /* Expander */
+    .streamlit-expanderHeader {
+        color: #2c3e50 !important;
     }
 </style>
 """, unsafe_allow_html=True)
